@@ -1,0 +1,13 @@
+[Unit]
+Description=Power Outage Checker
+After=network.target
+After=network-online.target
+
+[Service]
+WorkingDirectory=/home/nathan/power-outage-checker
+ExecStart=/home/nathan/.nvm/nvm-exec npm start
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
