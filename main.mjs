@@ -63,6 +63,7 @@ mqttClient.on("message", (topic, message) => {
     if (message.toString() === "online") {
       console.log("home assistant online");
       sendDiscoveryMessages();
+      sendOnlineStatus();
     }
   }
 });
