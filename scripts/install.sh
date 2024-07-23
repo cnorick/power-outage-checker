@@ -16,6 +16,7 @@ echo copying files
 mkdir -p "${APP_DIR}"
 cp -rf . "${APP_DIR}"
 cp .env "${APP_DIR}"
+cp .nvmrc "${APP_DIR}"
 sudo chmod -R 777 "${APP_DIR}"
 
 echo npm installing
