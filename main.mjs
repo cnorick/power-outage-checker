@@ -62,8 +62,10 @@ mqttClient.on("message", (topic, message) => {
   if (topic === homeassistantStatusTopic) {
     if (message.toString() === "online") {
       console.log("home assistant online");
-      sendDiscoveryMessages();
-      sendOnlineStatus();
+      setTimeout(async () => {
+        sendDiscoveryMessages();
+        await sendOnlineStatus();
+      }, 5000);
     }
   }
 });
@@ -75,7 +77,9 @@ async function sendOnlineStatus() {
 
 mqttClient.on("connect", async () => {
   console.log("connected");
-  sendBirthMessage();
-  sendDiscoveryMessages();
-  await sendOnlineStatus();
+  setTimeout(async () => {
+    sendBirthMessage();
+    sendDiscoveryMessages();
+    await sendOnlineStatus();
+  }, 5000);
 });
