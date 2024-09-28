@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pi=${1:-walnut}
+pi=${1:-walnut} # locust
 
 echo "copying files to test machine (${pi})"
 rsync -au * ${pi}:~/power-outage-checker

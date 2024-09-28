@@ -32,6 +32,7 @@ function sendDiscoveryMessages() {
         identifiers: [deviceId],
         name: `Power Outage Checker - ${hostname}`,
         manufacturer: "Nathan Orick",
+        model: "Power Outage Checker",
       },
     })
   );
@@ -64,6 +65,7 @@ mqttClient.on("message", (topic, message) => {
       console.log("home assistant online");
       setTimeout(async () => {
         sendDiscoveryMessages();
+        sendBirthMessage();
         await sendOnlineStatus();
       }, 5000);
     }
@@ -71,15 +73,16 @@ mqttClient.on("message", (topic, message) => {
 });
 
 async function sendOnlineStatus() {
-  console.log('sending onine status')
+  console.log('sending online status')
   await mqttClient.publishAsync(sensorStateTopic, 'ON');
+  mqttClient.publish(availabilityTopic, "online");
 }
 
 mqttClient.on("connect", async () => {
   console.log("connected");
   setTimeout(async () => {
-    sendBirthMessage();
     sendDiscoveryMessages();
+    sendBirthMessage();
     await sendOnlineStatus();
   }, 5000);
 });
