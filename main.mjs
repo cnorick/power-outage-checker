@@ -52,8 +52,6 @@ const mqttClient = mqtt.connect(mqttBrokerAddress, {
   },
 });
 
-mqttClient.subscribe(homeassistantStatusTopic);
-
 mqttClient.on("error", (e) => {
   console.log("error", e);
 });
@@ -69,6 +67,9 @@ mqttClient.on("message", (topic, message) => {
         await sendOnlineStatus();
       }, 5000);
     }
+    if (message.toString() === 'offline') {
+      console.log('home assistant offline')
+    }
   }
 });
 
@@ -80,6 +81,7 @@ async function sendOnlineStatus() {
 
 mqttClient.on("connect", async () => {
   console.log("connected");
+  mqttClient.subscribe(homeassistantStatusTopic);
   setTimeout(async () => {
     sendDiscoveryMessages();
     sendBirthMessage();
