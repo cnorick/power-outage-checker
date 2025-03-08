@@ -26,10 +26,10 @@ function sendDiscoveryMessages() {
     JSON.stringify({
       state_topic: sensorStateTopic,
       availability_topic: availabilityTopic,
-      unique_id: `${deviceId}-status`,
+      unique_id: `${deviceId}-online-status`,
       name: "Online Status",
       device: {
-        identifiers: [deviceId],
+        identifiers: [`${deviceId}-online-status`],
         name: `Power Outage Checker - ${hostname}`,
         manufacturer: "Nathan Orick",
         model: "Power Outage Checker",
