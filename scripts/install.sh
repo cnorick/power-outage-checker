@@ -5,9 +5,23 @@ if [ "$EUID" -ne 0 ]
   exit
 fi
 
+if ! [ -x "$(command -v curl)" ]; then
+  echo 'Error: curl is not installed.'
+  echo 'Install curl and re-run'
+  exit
+fi
+
 SYSTEMD_DIR=/lib/systemd/system/
 APP_DIR=/opt/power-outage-checker
 SERVICE_NAME=power-outage-checker.service
+
+if ! [ -d "/root/.nvm" ]; then
+  echo 'Error: nvm is not installed.'
+  echo 'Installing nvm.'
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+  echo 'nvm installed. Restart the terminal.'
+  exit
+fi
 
 echo clearing app folder
 rm -rf "${APP_DIR}"/*
@@ -17,11 +31,13 @@ mkdir -p "${APP_DIR}"
 cp -rf . "${APP_DIR}"
 cp .env "${APP_DIR}"
 cp .nvmrc "${APP_DIR}"
-sudo chmod -R 777 "${APP_DIR}"
+chmod -R 777 "${APP_DIR}"
 
 echo npm installing
 cd "${APP_DIR}"
-/home/nathan/.nvm/nvm-exec npm i
+source "/root/.bashrc"
+nvm install
+/root/.nvm/nvm-exec npm i
 
 echo installing systemd unit
 mkdir -p $SYSTEMD_DIR

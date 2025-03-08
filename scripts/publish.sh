@@ -1,14 +1,15 @@
 #!/bin/bash
 
-pi=${1:-walnut} # locust
+pi=${1:-mqtt-checkers}
+tmp_folder="~/power-outage-checker"
 
-echo "copying files to test machine (${pi})"
-rsync -au * ${pi}:~/power-outage-checker
-rsync .env ${pi}:~/power-outage-checker
-rsync .nvmrc ${pi}:~/power-outage-checker
+echo "copying files to test machine (${pi}:${tmp_folder})"
+rsync -au * ${pi}:${tmp_folder}
+rsync .env ${pi}:${tmp_folder}
+rsync .nvmrc ${pi}:${tmp_folder}
 
 # echo running install script
 # ssh ${pi} << EOF
-#   cd power-outage-checker
+#   cd ${tmp_folder}
 #   ./scripts/install.sh
 # EOF
