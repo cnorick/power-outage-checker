@@ -1,6 +1,7 @@
 #!/bin/bash
 
 pi=${1:-mqtt-checkers}
+# pi=${1:-locust}
 tmp_folder="~/power-outage-checker"
 
 echo "copying files to test machine (${pi}:${tmp_folder})"

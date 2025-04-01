@@ -17,30 +17,48 @@ const sensorStateTopic = `${sensorTopicPrefix}/state`;
 const availabilityTopic = `${sensorTopicPrefix}/availability`;
 const hostname = os.hostname() || getMac();
 
+async function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 // See https://www.home-assistant.io/integrations/mqtt
-function sendDiscoveryMessages() {
+async function sendDiscoveryMessage() {
   console.log("sending discovery messages");
 
-  mqttClient.publish(
+  await mqttClient.publishAsync(
     sensorConfigTopic,
-    JSON.stringify({
-      state_topic: sensorStateTopic,
-      availability_topic: availabilityTopic,
-      unique_id: `${deviceId}-online-status`,
-      name: "Online Status",
-      device: {
-        identifiers: [`${deviceId}-online-status`],
-        name: `Power Outage Checker - ${hostname}`,
-        manufacturer: "Nathan Orick",
-        model: "Power Outage Checker",
+    JSON.stringify(
+      {
+        state_topic: sensorStateTopic,
+        availability_topic: availabilityTopic,
+        unique_id: `${deviceId}-online-status`,
+        name: "Online Status",
+        device: {
+          identifiers: [`${deviceId}-online-status`],
+          name: `Power Outage Checker - ${hostname}`,
+          manufacturer: "Nathan Orick",
+          model: "Power Outage Checker",
+        },
       },
-    })
+      {
+        retain: true
+      }
+    )
   );
 }
 
-function sendBirthMessage() {
+async function sendBirthMessage() {
   console.log("sending birth message");
-  mqttClient.publish(availabilityTopic, "online");
+  await mqttClient.publishAsync(availabilityTopic, "online", {
+    retain: true
+  });
+}
+
+async function sendSensorStatus() {
+  console.log('sending online status')
+  await mqttClient.publishAsync(sensorStateTopic, "ON", {
+    retain: true
+  });
 }
 
 const mqttClient = mqtt.connect(mqttBrokerAddress, {
@@ -49,6 +67,7 @@ const mqttClient = mqtt.connect(mqttBrokerAddress, {
   will: {
     topic: availabilityTopic,
     payload: "offline",
+    retain: true
   },
 });
 
@@ -56,16 +75,15 @@ mqttClient.on("error", (e) => {
   console.log("error", e);
 });
 
-mqttClient.on("message", (topic, message) => {
+mqttClient.on("message", async (topic, message) => {
   console.log("received message:", topic, message.toString());
   if (topic === homeassistantStatusTopic) {
     if (message.toString() === "online") {
+      await delay(Math.floor(Math.random() * 5_000));
       console.log("home assistant online");
-      setTimeout(async () => {
-        sendDiscoveryMessages();
-        sendBirthMessage();
-        await sendOnlineStatus();
-      }, 5000);
+      await sendDiscoveryMessage();
+      await sendBirthMessage();
+      await sendSensorStatus();
     }
     if (message.toString() === 'offline') {
       console.log('home assistant offline')
@@ -73,18 +91,7 @@ mqttClient.on("message", (topic, message) => {
   }
 });
 
-async function sendOnlineStatus() {
-  console.log('sending online status')
-  await mqttClient.publishAsync(sensorStateTopic, 'ON');
-  mqttClient.publish(availabilityTopic, "online");
-}
-
 mqttClient.on("connect", async () => {
   console.log("connected");
   mqttClient.subscribe(homeassistantStatusTopic);
-  setTimeout(async () => {
-    sendDiscoveryMessages();
-    sendBirthMessage();
-    await sendOnlineStatus();
-  }, 5000);
 });
